@@ -128,6 +128,9 @@
     border-radius: 1rem;
     background-color: #f7ddde;
     padding: 0.2rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     &--inputArea {
       margin-top: 1rem;

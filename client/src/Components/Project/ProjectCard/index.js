@@ -1,11 +1,15 @@
-import React from "react";
+import { React, useState, useEffect } from "react";
 import { ReactComponent as Likes } from "images/likes.svg";
 import { ReactComponent as Views } from "images/views.svg";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { likeProject } from "actions/projects";
+import {
+  useMonetizationState,
+  useMonetizationCounter,
+} from "react-web-monetization";
 
-const Thumbnail = ({ projectTagline, projectLogo, projectImage }) => {
+const Thumbnail = ({ projectTagline, projectImage }) => {
   return (
     <>
       <div className="thumbnail__placeholder">
@@ -22,9 +26,7 @@ const Thumbnail = ({ projectTagline, projectLogo, projectImage }) => {
 
 const Card = ({
   userName,
-  userImage,
   userId,
-  projectDomain,
   projectImage,
   projectTitle,
   projectId,
@@ -32,21 +34,64 @@ const Card = ({
   projectLogo,
   projectLikes,
   projectViews,
+  projectExclusive,
 }) => {
-  // console.log(
-  //   userName,
-  //   userImage,
-  //   projectDomain,
-  //   projectImage,
-  //   projectTitle,
-  //   projectId,
-  //   projectTagline,
-  //   projectImage,
-  //   projectLikes
-  // );
+  console.log(projectExclusive);
   const dispatch = useDispatch();
   const history = useHistory();
   const user = JSON.parse(localStorage.getItem("profile"));
+
+  const monetization = useMonetizationState();
+
+  const LoadingCardOverlay = () => {
+    return <div className="card__overlay card__loadingOverlay"></div>;
+  };
+
+  const ExclusiveSignUpCardOverlay = () => {
+    return (
+      <div className="card__overlay card__overlay--exclusive">
+        <h3>This content is Web Monetized</h3>
+        <h5>
+          Sign up on Coil to enable web monetization and support creators.
+        </h5>
+        <a href="https://www.coil.com">Sign Up</a>
+      </div>
+    );
+  };
+
+  const SupportMonetizationCardOverlay = () => {
+    return (
+      <div className="card__overlay card__supportCardOverlay">
+        <h3>This content is Web Monetized</h3>
+        <h5>
+          To view this content please enable your Coil Extension and Support
+          Creator Economy
+        </h5>
+      </div>
+    );
+  };
+
+  const getCardOverlay = () => {
+    if (projectExclusive) {
+      if (!monetization.state) return ExclusiveSignUpCardOverlay();
+      else if (monetization.state === "stopped")
+        return SupportMonetizationCardOverlay();
+      else if (monetization.state === "started") return null;
+      else if (monetization.state === "pending") return LoadingCardOverlay();
+    } else {
+      return null;
+    }
+  };
+  const getCardState = () => {
+    if (projectExclusive) {
+      if (!monetization.state) return true;
+      else if (monetization.state === "stopped") return true;
+      else if (monetization.state === "started") return false;
+      else if (monetization.state === "pending") return true;
+    } else {
+      return false;
+    }
+  };
 
   const checkLikeStatus = () => {
     return (
@@ -56,16 +101,21 @@ const Card = ({
   };
 
   const openProjectPage = (e) => {
-    history.push(`/projects/${projectId}`);
+    if (!getCardState()) {
+      history.push(`/projects/${projectId}`);
+    }
   };
 
   const openUserProfile = (e) => {
-    history.push(`/profile/${userId}`);
+    if (!getCardState()) {
+      history.push(`/profile/${userId}`);
+    }
   };
 
   return (
     <li className="card">
       <div className="card__thumbnail" onClick={(e) => openProjectPage(e)}>
+        {getCardOverlay()}
         <Thumbnail
           projectId={projectId}
           projectLogo={projectLogo}

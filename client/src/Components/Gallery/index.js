@@ -25,10 +25,9 @@ const Gallery = ({ category }) => {
   const [search, setSearch] = useState("");
   const [tags, setTags] = useState([]);
   const searchQuery = query.get("searchQuery");
-  const [localProject, setLocalProject] = useState([]);
+  // const [localProject, setLocalProject] = useState([]);
 
   useEffect(() => {
-    console.log(category);
     if (category === "popular" || category === "following") {
       if (page) {
         dispatch(getProjects(page));
@@ -76,27 +75,6 @@ const Gallery = ({ category }) => {
     setFilterType(filterType);
   };
 
-  // const [filteredProjects, setFilteredProjects] = useState(projects);
-  // useEffect(() => {
-  //   const temp = projects
-  //     .filter((project) => {
-  //       let state = false;
-  //       project.techStack.filter((tag) => {
-  //         if (tag === filterType) {
-  //           state = true;
-  //         }
-  //       });
-  //       return state;
-  //     })
-  //     .map((project) => {
-  //       return project;
-  //     });
-  //   console.log(temp);
-  //   if (filterType !== "all") {
-  //     setFilteredProjects(temp);
-  //   }
-  // }, [filterType]);
-
   return (
     <>
       {category === "search" ? (
@@ -108,10 +86,10 @@ const Gallery = ({ category }) => {
       ) : (
         ""
       )}
-      <MainBody className=" flex flex-col justify-center">
+      <MainBody className="glass flex flex-col justify-center">
         <Filter category={category} filterHandler={filterHandler} />
         <SubBody>
-          {projects.length !== 0 ? (
+          {projects.length !== 0 || isLoading ? (
             <ProjectList projects={projects} />
           ) : (
             <NoResults searchValue={search} />

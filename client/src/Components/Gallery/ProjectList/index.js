@@ -18,6 +18,7 @@ const ProjectList = ({ projects }) => {
             projectImage={project.images[0]}
             projectLikes={project.likeCount}
             projectViews={project.viewCount}
+            projectExclusive={project.playoffs}
           />
         ))}
     </ol>
